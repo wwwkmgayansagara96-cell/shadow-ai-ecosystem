@@ -1,0 +1,24 @@
+# Build stage
+FROM ubuntu:22.04 as builder
+
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jdk \
+    android-sdk \
+    android-sdk-platform-tools \
+    gradle \
+    git \
+    wget
+
+WORKDIR /app
+COPY . .
+
+RUN cd apps/mobile-android && gradle build
+
+# Runtime stage
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y openjdk-17-jre
+
+COPY --from=builder /app/apps/mobile-android/build/outputs/apk/release/*.apk /app/jarvis.apk
+
+CMD ["echo", "Jarvis APK built successfully at /app/jarvis.apk"]

@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Cloud AI API
+  cloud-api:
+    build:
+      context: ./services/cloud-api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - PORT=3000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./services/cloud-api/src:/app/src
+    networks:
+      - shadow-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - mongodb
+    networks:
+      - shadow-network
+
+  # MongoDB
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - shadow-network
+
+  # Redis (for caching & sessions)
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - shadow-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  shadow-network:
+    driver: bridge
