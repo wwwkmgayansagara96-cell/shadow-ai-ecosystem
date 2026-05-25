@@ -1,161 +1,247 @@
-# 🌙 SHEDOW Architecture
+# SHEDOW AI Platform Architecture
 
-## System Design
+## System Overview
 
 ```
-┌──────────────────────────────────────────────┐
-│         Android App (Jarvis)            │
-│  ┌────────────────────────────────────────┐  │
-│  │    UI Layer (Jetpack Compose)    │  │
-│  └────────────────────────────────────────┘  │
-└──────────────────────────┬──────────────────┘
-               │
-               ▼
-┌────────────────────────────────────────────────┐
-│      SHEDOW ORCHESTRATOR (Core)          │
-│  ┌────────────────────────────────────────┐   │
-│  │  1. Plugin Manager (Fastest)     │   │
-│  │  2. Offline Engine (Fast)        │   │
-│  │  3. Cloud AI (Powerful)          │   │
-│  └────────────────────────────────────────┘   │
-└──────────────────────┬──────────────────────┘
-               │
-       ┌───────┼───────────┬────────────────┐
-       ▼       ▼       ▼
-   ┌────────┐ ┌────────┐  ┌──────────────────┐
-   │MemGraph │ │ Plugins   │  │  Offline     │
-   │        │ │        │  │  Engine        │
-   └────────┘ └────────┘  └──────────────────┘
-       │
-       └──────────────────┬────────────────────┘
-                     ▼              ▼
-              ┌────────────────────────┐   ┌──────────────────┐
-              │  Cloud API  │   │Auth Service  │
-              └────────────────────┘   └──────────────────┘
-                    │
-                    ▼
-              ┌──────────────────┐
-              │ OpenAI GPT       │
-              │ MongoDB          │
-              │ Redis            │
-              └──────────────────┘
+                ┌─────────────────────────┐
+                │   SHEDOW CLOUD AI       │
+                │ (GPT / Backend Brain)   │
+                └──────────┬──────────────┘
+                           ↓
+┌──────────────────────────────────────────────────┐
+│           SHEDOW AI CORE PLATFORM                │
+│  - Intent Engine                                 │
+│  - Memory Graph                                  │
+│  - Plugin System (Skills)                        │
+│  - AI Router (Offline ↔ Cloud)                  │
+└──────────┬───────────────────────┬──────────────┘
+           ↓                       ↓
+┌──────────────────┐   ┌──────────────────────────┐
+│ OFFLINE AI LAYER │   │ DEVICE CONTROL LAYER     │
+│ (LLM / Rules)    │   │ (Android / System APIs)  │
+└─────────┬────────┘   └────────────┬─────────────┘
+          ↓                         ↓
+     ┌─────────────────────────────────────┐
+     │   MOBILE APP (SHEDOW ASSISTANT)    │
+     │ Voice • Wake word • UI • Commands  │
+     └─────────────────────────────────────┘
 ```
 
-## Component Details
+## Core Components
 
-### 1. Plugin System
-- **Purpose**: Device-level commands (WhatsApp, SMS, settings, etc.)
-- **Execution**: Synchronous, instant
-- **Plugins**: Implement `ShedowPlugin` interface
-- **Priority**: Can be prioritized
-- **Examples**:
-  - WhatsAppPlugin - Send messages
-  - TimePlugin - Get time/set alarms
-  - GreetingPlugin - Basic responses
-  - ContactsPlugin - Search contacts
-  - SettingsPlugin - Device settings
+### 1. AI Orchestrator (Brain Router)
+Responsible for intelligent decision-making:
+1. Check plugin system first (fastest)
+2. Try offline AI (no latency)
+3. Fall back to cloud AI (highest intelligence)
+4. Store results in memory graph
 
-### 2. Offline Engine
-- **Purpose**: Local AI without internet
-- **Models**: Mistral 7B, Phi-3 Mini (quantized GGUF)
-- **Runtime**: llama.cpp for Android
-- **Features**:
-  - Time/date queries
-  - Basic math
-  - Static knowledge
-  - Fallback text patterns
-- **Confidence**: High for known patterns, flags unknown for cloud
-
-### 3. Memory Graph
-- **Purpose**: User learning, context, personality
-- **Data Structure**: Nodes + Edges
-- **Node Info**:
-  - Input text
-  - Response text
-  - Timestamp
-  - Context tags
-  - Importance score
-  - Source (plugin/offline/cloud)
-- **Features**:
-  - Context retrieval
-  - Tag-based search
-  - Relationship tracking
-  - Auto-cleanup (30-day retention)
-
-### 4. Cloud AI
-- **Purpose**: Complex reasoning, knowledge
-- **Model**: OpenAI GPT-4o-mini
-- **Latency**: ~1-5 seconds
-- **Fallback**: When offline can't handle
-- **Context**: Sent from memory graph
-
-### 5. Authentication Service
-- **Purpose**: User management
-- **Auth**: JWT tokens
-- **DB**: MongoDB
-- **Features**:
-  - Register/Login
-  - Token verification
-  - Multi-device support
-
-## Data Flow
-
+**Flow:**
 ```
 User Input
-    ▼
-Orchestrator.handle(input)
-    ▼
-1. Store in MemoryGraph
-    ▼
-2. Try Plugins.findMatch()
-    ├─ Found? → Plugin.execute() → Return
-    └─ Not found? Continue
-    ▼
-3. Try OfflineEngine.respond()
-    ├─ Strong response? → Store + Return
-    └─ NEEDS_CLOUD? Continue
-    ▼
-4. CloudAI.ask()
-    ├─ Success? → Store + Return
-    └─ Error? → Error handling
+    ↓
+Memory Store
+    ↓
+Plugin Check → [Match Found] → Execute Plugin
+    ↓
+[No Match]
+    ↓
+Offline LLM → [Strong Response] → Return & Store
+    ↓
+[Weak Response]
+    ↓
+Cloud AI (GPT-4o) → Return & Store
 ```
 
-## Key Features
+### 2. Offline AI Engine
+- **Models:** Phi-3 Mini, Mistral 7B (quantized)
+- **Runtime:** llama.cpp for Android
+- **Latency:** <500ms for simple queries
+- **No internet required**
 
-### Offline-First
-- Works completely without internet
-- Local storage and processing
-- Graceful degradation
+### 3. Plugin System (Extensible Skills)
+```kotlin
+interface ShedowPlugin {
+    fun name(): String
+    fun canHandle(input: String): Boolean
+    fun execute(input: String): String
+}
+```
 
-### Intelligent Fallback
-- Plugins first (instant)
-- Offline AI second (fast)
-- Cloud AI last (powerful)
-- No user waiting for cloud if offline works
+Examples:
+- WhatsApp skill
+- Time/weather skill
+- Greeting skill
+- Calculator skill
+- Custom integrations
 
-### Learning System
-- Memory graph tracks all interactions
-- Tags enable context retrieval
-- Importance scoring for prioritization
-- User personality modeling
+### 4. Memory Graph (Real Personality)
+Not just key-value storage, but a knowledge graph:
+```kotlin
+data class MemoryNode(
+    val input: String,
+    val response: String,
+    val timestamp: Long,
+    val contextTags: List<String>,
+    val emotionalContext: String,
+    val connections: List<String>  // Related memories
+)
+```
 
-### Extensible
-- Plugin system for new skills
-- Model swapping (different LLMs)
-- Service modularity
+Enables:
+- Personalization
+- Learning user habits
+- Context awareness
+- Prediction
+
+### 5. Voice Processing Pipeline
+
+1. **Wake Word Detection** (Porcupine SDK)
+   - "Hey SHEDOW" activation
+   - Low power (<1% CPU)
+
+2. **Voice Input** (Android Speech Recognition)
+   - Real-time transcription
+   - Noise filtering
+
+3. **AI Processing** (Orchestrator)
+   - Intent understanding
+   - Response generation
+
+4. **Voice Output** (Text-to-Speech)
+   - Natural speech synthesis
+   - Jarvis-like personality
+
+## Service Architecture
+
+### Backend Services
+
+**API Gateway** (Node.js/Express)
+- Request routing
+- Rate limiting
+- Request validation
+
+**AI Orchestrator** (Python/Node.js)
+- Decision engine
+- Plugin coordination
+- Model switching logic
+
+**Auth Service**
+- JWT tokens
+- User management
+- API key handling
+
+**Memory Service**
+- Graph database (Neo4j or similar)
+- Vector embeddings (for semantic search)
+- User memory persistence
+
+### Android Services
+
+**WakeWordService**
+- Listens for activation phrase
+- Minimal power usage
+
+**VoiceService**
+- Captures voice input
+- Sends to orchestrator
+- Plays responses
+
+**SystemControlService**
+- Opens apps
+- Controls settings
+- Executes commands
+
+## Data Flow Example
+
+**User:** "What time is it?"
+
+1. Wake word detected → "Yes?"
+2. Voice captured → "What time is it?"
+3. Orchestrator receives input
+4. Plugin check → TimePlugin matches
+5. Execute → Returns current time
+6. TTS speaks: "It's 3:45 PM"
+7. Memory stores interaction
+
+**Result:** Ultra-fast response, no cloud call needed
+
+## Data Flow Example (Cloud Fallback)
+
+**User:** "Write a poem about AI"
+
+1. Wake word detected → "Yes?"
+2. Voice captured → "Write a poem about AI"
+3. Orchestrator receives input
+4. Plugin check → No match
+5. Offline AI → Weak response (generic poem)
+6. Cloud check triggered → OpenAI GPT-4o
+7. Get creative poem from cloud
+8. TTS speaks response
+9. Memory stores interaction + cloud result
+
+**Result:** High-quality response despite complexity
+
+## Deployment Architecture
+
+### Development
+- Local Android emulator
+- Local backend (Node.js)
+- Local mock cloud API
+
+### Staging
+- Firebase Testing Lab
+- AWS backend (staging environment)
+- OpenAI API (real)
+
+### Production
+- Google Play Store (Android)
+- Kubernetes cluster (backend)
+- CloudFlare CDN (API gateway)
+- Neo4j cloud (memory)
+- OpenAI API (production)
+
+## Security Layers
+
+1. **API Security**
+   - API key validation
+   - Rate limiting
+   - CORS protection
+
+2. **Data Security**
+   - Encryption in transit (HTTPS)
+   - Encryption at rest (DB)
+   - User privacy controls
+
+3. **Model Security**
+   - Offline models not exfiltrated
+   - Cloud requests logged
+   - User data not stored in cloud AI
+
+## Performance Targets
+
+- Wake word detection: <100ms
+- Voice to text: <2 seconds
+- Plugin execution: <500ms
+- Offline AI response: <1 second
+- Cloud AI response: <5 seconds
+- TTS generation: <500ms
+
+**Total user experience:** Voice input → Response in <5 seconds
 
 ## Scalability
 
-- **Device**: Off-device processing reduces latency
-- **Cloud**: Horizontal scaling with microservices
-- **Data**: MongoDB for scalable storage
-- **Cache**: Redis for session/rate limiting
-- **Orchestration**: Kubernetes-ready
+- Kubernetes auto-scaling
+- Load balancing across API gateways
+- Database sharding for memory service
+- CDN caching for static content
+- Async job processing for heavy tasks
 
-## Security
+## Future Enhancements
 
-- JWT authentication
-- API rate limiting
-- Input validation
-- Secure offline storage
-- Encrypted cloud communication
+- Multi-language support
+- Emotion detection
+- Contextual awareness improvements
+- Custom model fine-tuning
+- Federated learning (on-device model improvement)
+- Multi-agent system coordination

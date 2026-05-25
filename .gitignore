@@ -1,23 +1,20 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-
-# Node
-node_modules/
-npm-debug.log
-yarn-error.log
-.npm
-
-# Environment
+# Environment variables
 .env
 .env.local
 .env.*.local
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+build/
+dist/
+*.apk
+*.aab
+*.jar
+*.war
 
 # IDE
 .idea/
@@ -27,42 +24,24 @@ yarn-error.log
 *~
 .DS_Store
 
-# Build
-build/
-dist/
-*.class
-*.jar
-*.war
-*.ear
-*.apk
-*.aar
+# Gradle
+.gradle/
+*.gradle
+local.properties
 
-# Data
-*.db
-*.sqlite
-/data/
-/models/
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+
+# Kubernetes secrets
+k8s/secrets/
 
 # Logs
 logs/
 *.log
 
-# Dependencies
-/node_modules/
-/venv/
-/.gradle/
-
-# Android
-.gradle
-local.properties
-.classpath
-.project
-.settings/
-bin/
-gen/
-.externalNativeBuild
-.cxx
-
-# Kotlin
-kotlin-build/
-*.kt.bak
+# Temporary files
+tmp/
+temp/

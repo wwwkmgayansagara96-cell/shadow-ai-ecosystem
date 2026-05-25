@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shedow-ai-backend
+  labels:
+    app: shedow-ai
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: shedow-ai
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: shedow-ai
+        tier: backend
+    spec:
+      containers:
+      - name: backend
+        image: shedow-ai-backend:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: shedow-secrets
+              key: openai-api-key
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: shedow-secrets
+              key: jwt-secret
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shedow-ai-backend
+  labels:
+    app: shedow-ai
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: shedow-ai
+    tier: backend

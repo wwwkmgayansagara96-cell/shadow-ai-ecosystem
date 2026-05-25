@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # SHEDOW AI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    restart: unless-stopped
+    networks:
+      - shedow-network
+
+  # Neo4j Memory Graph Database
+  neo4j:
+    image: neo4j:5-enterprise
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - shedow-network
+
+  # PostgreSQL for User Data
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=shedow_ai
+    restart: unless-stopped
+    networks:
+      - shedow-network
+
+  # Redis for Caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - shedow-network
+
+networks:
+  shedow-network:
+    driver: bridge
