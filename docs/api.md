@@ -1,185 +1,70 @@
-# 🌙 SHEDOW API Reference
+# SHEDOW AI - API Documentation
 
-## Cloud AI Endpoint
+## Backend Endpoints
 
-### POST /api/ai
+### Health Check
+```
+GET /health
 
-Send a message to the cloud AI for processing.
-
-**Request:**
-```json
+Response:
 {
-  "message": "What is the weather?",
-  "context": ["User asked about weather", "Location: New York"],
-  "userId": "user_123"
+  "status": "healthy",
+  "timestamp": "2024-01-10T12:00:00Z"
 }
 ```
 
-**Response:**
-```json
+### Process AI Request
+```
+POST /ai
+
+Request Body:
+{
+  "message": "What time is it?"
+}
+
+Response:
 {
   "success": true,
-  "reply": "I need to check the weather API. Currently, it's sunny in New York with 72°F.",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "model": "gpt-4o-mini"
-}
-```
-
-**Status Codes:**
-- 200: Success
-- 400: Bad request (missing message)
-- 500: Server error
-
----
-
-### GET /api/health
-
-Check cloud AI service status.
-
-**Response:**
-```json
-{
-  "status": "ok",
-  "service": "cloud-ai",
+  "reply": "It is 12:00 PM",
   "model": "gpt-4o-mini",
-  "timestamp": "2024-01-15T10:30:00Z"
+  "timestamp": "2024-01-10T12:00:00Z"
 }
 ```
 
----
+## Android API Usage
 
-## Authentication Service
-
-### POST /register
-
-Register a new user.
-
-**Request:**
-```json
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "secure_password"
-}
-```
-
-**Response:**
-```json
-{
-  "access_token": "eyJhbGc...",
-  "token_type": "bearer",
-  "user_id": "user_123"
-}
-```
-
----
-
-### POST /login
-
-Login user.
-
-**Request:**
-```json
-{
-  "username": "john_doe",
-  "password": "secure_password"
-}
-```
-
-**Response:**
-```json
-{
-  "access_token": "eyJhbGc...",
-  "token_type": "bearer",
-  "user_id": "user_123"
-}
-```
-
----
-
-### GET /verify
-
-Verify JWT token.
-
-**Query Parameters:**
-- `token` (string): JWT token
-
-**Response:**
-```json
-{
-  "valid": true,
-  "user_id": "user_123",
-  "exp": 1705315800
-}
-```
-
----
-
-## Android SDK
-
-### Initialize Orchestrator
-
+### Initialize AI Orchestrator
 ```kotlin
-val orchestrator = ShedowOrchestrator(
-  offline = OfflineEngine("./models/mistral-7b-q4.gguf"),
-  cloud = CloudAI("http://cloud-api:3000"),
-  plugins = PluginManager().apply {
-    register(WhatsAppPlugin())
-    register(TimePlugin())
-    register(GreetingPlugin())
-  },
-  memory = MemoryGraph()
+val orchestrator = AIOrchestrator(
+    offline = OfflineLLM(),
+    cloud = CloudAI(apiKey),
+    memory = MemoryDB(dao)
 )
 ```
 
-### Handle User Input
-
+### Process Voice Input
 ```kotlin
-val response = orchestrator.handle("What time is it?")
-println(response) // "The current time is 10:30:45"
+val response = orchestrator.process("Hello SHEDOW")
+TTS.speak(response)
 ```
 
-### Get Memory Context
-
+### Get Memory
 ```kotlin
-val context = orchestrator.memory.getContext("weather")
-println(context) // List of recent weather-related responses
+val history = orchestrator.getMemory(limit = 50)
 ```
 
----
+## WebSocket (Real-time)
+
+TODO: WebSocket implementation for streaming responses
 
 ## Error Handling
 
-### Cloud API Unavailable
-
-When cloud is down, the orchestrator falls back to offline engine:
-
-```
-User: "Who won the NBA finals 2024?"
-▼
-Plugin: No match
-▼
-Offline: "NEEDS_CLOUD"
-▼
-Cloud: ERROR (Timeout/Unavailable)
-▼
-Response: "I'm offline and need internet to answer that. Try again when connected."
-```
-
-### Invalid Input
-
-```json
-{
-  "success": false,
-  "error": "Message is required"
-}
-```
-
-### Rate Limiting
-
-```json
-{
-  "success": false,
-  "error": "Rate limit exceeded. Max 60 requests per minute."
+```kotlin
+try {
+    val response = orchestrator.process(input)
+    TTS.speak(response)
+} catch (e: Exception) {
+    TTS.speak("Error processing request")
+    Log.e("SHEDOW", e.message ?: "Unknown error")
 }
 ```

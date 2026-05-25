@@ -1,0 +1,76 @@
+# SHEDOW AI — Play Store Description
+
+## Title (50 chars)
+**SHEDOW AI – Smart Voice Assistant**
+
+## Short Description (80 chars)
+Advanced AI assistant with offline intelligence and voice control
+
+## Full Description (4000 chars)
+
+### 🤖 Meet SHEDOW AI
+
+SHEDOW AI is your personal, always-on voice assistant powered by advanced AI intelligence. Built for privacy and performance, SHEDOW works both offline and cloud-connected.
+
+### ✨ Features
+
+🎤 **Voice Control**
+- Natural voice commands
+- "Hey SHEDOW" wake word activation
+- Continuous listening mode
+
+🧠 **Offline Intelligence**
+- Works without internet
+- Private on-device processing
+- Instant responses
+
+☁️ **Cloud AI Power**
+- GPT-4 powered responses
+- Advanced reasoning
+- Creative generation
+
+🔐 **Privacy First**
+- Microphone only during active use
+- No audio storage
+- Full user control
+
+🚀 **Always Ready**
+- Background listening
+- Quick wake word activation
+- Jarvis-style experience
+
+### 🎯 Use Cases
+
+✅ Ask questions and get instant answers
+✅ Set reminders and alarms
+✅ Get weather and news
+✅ Control smart home devices
+✅ Write emails and messages
+✅ Do calculations
+✅ Tell stories and jokes
+✅ Play music and podcasts
+
+### 🔒 Privacy & Security
+
+- Microphone permission only when needed
+- No audio files stored on servers
+- Encrypted cloud communication
+- Full transparency in settings
+- Delete all data anytime
+
+### 💡 Technology
+
+Built with:
+- State-of-the-art LLMs
+- On-device ML models
+- Cloud AI integration
+- Memory graph learning
+
+### 📞 Support
+
+Have questions? Contact us at support@shedow.ai
+
+### 📜 Legal
+
+- Privacy Policy: https://shedow.ai/privacy
+- Terms of Service: https://shedow.ai/terms
