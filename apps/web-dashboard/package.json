@@ -1,0 +1,35 @@
+{
+  "name": "shedow-web-dashboard",
+  "version": "1.0.0",
+  "description": "SHEDOW AI Control Panel & Dashboard",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "next": "^14.0.0",
+    "axios": "^1.6.0",
+    "zustand": "^4.4.0",
+    "recharts": "^2.10.0",
+    "framer-motion": "^10.16.0",
+    "lucide-react": "^0.292.0",
+    "tailwindcss": "^3.3.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "date-fns": "^2.30.0",
+    "js-cookie": "^3.0.5",
+    "socket.io-client": "^4.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.0",
+    "@types/react": "^18.2.0",
+    "@types/node": "^20.0.0",
+    "postcss": "^8.4.30",
+    "autoprefixer": "^10.4.15"
+  }
+}
